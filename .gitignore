@@ -1,0 +1,91 @@
+# =========================
+# STEM_Agent Git Ignore
+# =========================
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# uni-app / Vite / frontend build output
+unpackage/
+dist/
+build/
+.vite/
+
+# Static assets are excluded from the source repository.
+# Keep only directory structure with .gitkeep files.
+static/**
+!static/**/
+!static/**/.gitkeep
+
+# Python cache / virtual env
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# Knowledge base content is excluded from the source repository.
+# Keep only directory structure with .gitkeep files.
+backend/knowledge_base/**
+!backend/knowledge_base/**/
+!backend/knowledge_base/**/.gitkeep
+
+# Backend generated eval reports and exported judge datasets
+backend/evals/reports/
+!backend/evals/reports/.gitkeep
+backend/evals/ragas/*.jsonl
+!backend/evals/ragas/.gitkeep
+
+# Local model/runtime config and secrets
+.env
+.env.*
+!.env.example
+!backend/.env.example
+*.pem
+*.key
+*.crt
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# IDE / OS files
+.vscode/
+.idea/
+.trae/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Databases and local storage
+*.sqlite
+*.sqlite3
+*.db
+
+# Large media files
+# GitHub normal repositories reject files >100MB. Use Git LFS, Releases,
+# object storage, or a separate asset package for these videos.
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm

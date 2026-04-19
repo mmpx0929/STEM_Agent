@@ -1,0 +1,1 @@
+"""STEM Agent FastAPI backend."""
