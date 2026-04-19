@@ -1,144 +1,100 @@
 # STEM_Agent
 
-面向小学 STEM 实验课程的 AI 辅助学习平台。
+STEM_Agent 是一个面向小学 STEM 实验课程的 AI 辅助学习平台。项目围绕“科学探究 + 工程实践 + AI 助教”构建学习闭环，支持实验流程引导、虚拟操作、数据记录、学习总结、RAG 知识库问答和流式 AI 对话。
 
-## 功能概览
+## Demo 展示
 
-- 科学探究与工程实践实验流程页面
-- 实验步骤、材料、数据记录、报告总结等学习环节
-- 悬浮式 AIChat 助手
-- FastAPI 后端代理
-- Hybrid RAG：FAISS 向量检索、BM25 稀疏检索、RRF 融合、reranker
-- SSE 流式回答接口
-- RAG 自定义评估集、bad case 记录和 Ragas 数据集导出
+### 首页与课程入口
+
+<img src="assets/readme/home.png" alt="首页与课程入口" width="800">
+
+### 科学实验流程
+
+<img src="assets/readme/science-flow.png" alt="科学实验流程" width="800">
+
+### 工程实验流程
+
+<img src="assets/readme/engineering-flow.png" alt="工程实验流程" width="800">
+
+### AIChat 流式回答
+
+<img src="assets/readme/aichat-stream.gif" alt="AIChat 流式回答" width="800">
+
+### RAG 问答
+
+<img src="assets/readme/rag-answer.png" alt="RAG 问答效果" width="800">
+
+
+## 核心功能
+
+- 实验课程页面：支持科学探究和工程实践两类 STEM 实验。
+- 实验流程引导：覆盖实验介绍、材料准备、步骤操作、数据记录、总结报告等环节。
+- AIChat 助手：前端浮窗式 AI 对话组件，支持普通回答和 SSE 流式回答。
+- Hybrid RAG：Markdown loader、结构化切块、metadata 增强、向量检索、BM25 检索、RRF 融合、reranker。
+- 大模型接入：预留 DashScope / Qwen 等 API 接入，也可接入本地大模型。
+- RAG 评估：支持自定义 eval cases、bad case 记录和 Ragas 格式数据导出。
+
 
 ## 技术栈
 
-```text
-前端：uni-app / Vue / JavaScript / SCSS
-后端：Python / FastAPI / Pydantic / Uvicorn
-RAG：Markdown KB / FAISS / BM25 / RRF / optional DashScope Qwen
-评估：自定义规则评估 / optional Ragas
-```
+Vue, JavaScript, FastAPI, RAG , Server-Sent Events
 
-## 目录说明
+## 目录结构
 
 ```text
-App.vue                         uni-app 根组件
-main.js                         前端入口
-pages/                          页面
-components/                     实验流程组件
-config/                         实验配置与素材路径配置
-utils/                          前端 AI 服务、状态、mock KB 等工具
-static/                         静态资源目录，只保留目录结构，不提交真实资源文件
-backend/                        FastAPI + RAG 后端
-backend/knowledge_base/         知识库目录，只保留目录结构，不提交真实知识库内容
-backend/evals/                  RAG 评估集与 bad case
+STEM_Agent/
+  App.vue                         uni-app 根组件
+  main.js                         前端入口
+  pages/                          页面目录
+  components/                     实验流程组件
+  config/                         实验配置、素材路径、流程配置
+  utils/                          前端 AI 服务、状态管理、工具函数
+  static/                         静态资源目录
+  backend/                        FastAPI + RAG 后端
+    app/                          后端应用代码
+      api/                        API 路由
+      core/                       配置
+      rag/                        RAG 模块
+      schemas/                    请求和响应模型
+      services/                   业务服务
+    evals/                        RAG 评估用例和评估脚本
+    knowledge_base/               知识库目录
+    scripts/                      索引构建等脚本
 ```
 
-## 重要说明：静态资源和知识库
+## 快速开始
 
-为了让 GitHub 仓库保持精简，当前仓库不提交下面两个目录中的真实内容：
-
-```text
-static/
-backend/knowledge_base/
-```
-
-这两个目录只通过 `.gitkeep` 保留目录结构。真实图片、视频、实验素材、Word 原始文档、标准化 Markdown 知识库、向量索引等内容需要通过单独的资源包、网盘、对象存储、GitHub Release 或比赛平台附件提供。
-
-当前 `.gitignore` 策略：
-
-```text
-static/**
-!static/**/
-!static/**/.gitkeep
-
-backend/knowledge_base/**
-!backend/knowledge_base/**/
-!backend/knowledge_base/**/.gitkeep
-```
-
-这意味着：
-
-```text
-1. static 下的 jpg、png、mp4 等真实素材不会上传。
-2. backend/knowledge_base 下的 raw_docs、experiments、index 等真实知识库内容不会上传。
-3. 每个目录中的 .gitkeep 会上传，用于保留目录结构。
-4. 如需完整运行实验页面和 RAG，需要先恢复外部资源包和知识库内容。
-```
-
-## 后端启动
-
-推荐使用项目根目录脚本：
+### 1. 克隆项目
 
 ```powershell
-cd D:\AI_Learning\STEM_Agent\STEM_Agent
-.\start_ai_proxy.bat
+git clone https://github.com/mmpx0929/STEM_Agent.git
+cd STEM_Agent
 ```
 
-脚本会激活 `STEM` conda 环境，并在需要时提示输入 `DASHSCOPE_API_KEY`。
+### 2. 准备后端环境
 
-手动启动：
+推荐使用 Python 3.10 或 3.11。
 
 ```powershell
 cd backend
-conda activate STEM
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 3000
+pip install -r requirements.txt
 ```
 
-接口文档：
-
-```text
-http://127.0.0.1:3000/docs
-```
-
-## 后端验证
+如果需要 FAISS：
 
 ```powershell
-cd backend
-python -m compileall app evals
-python evals\run_rag_eval.py
+conda install -c conda-forge faiss-cpu
 ```
 
-RAG 评估报告会输出到：
+### 3. 配置大模型 Key
 
-```text
-backend/evals/reports/
+使用环境变量：
+
+```powershell
+$env:DASHSCOPE_API_KEY="你的 DashScope API Key"
 ```
 
-注意：如果没有恢复 `backend/knowledge_base/` 的真实知识库内容，RAG 检索和评估只能验证接口流程，无法验证真实知识库效果。
-
-## 前端运行
-
-当前前端是 uni-app 项目结构，建议使用 HBuilderX 打开项目根目录并运行到 H5 浏览器。
-
-前端默认请求：
-
-```text
-http://127.0.0.1:3000/api/ai/chat
-http://127.0.0.1:3000/api/ai/chat/stream
-```
-
-注意：如果没有恢复 `static/` 真实素材，页面中依赖本地图片、视频、实验素材的部分可能无法完整展示。
-
-## 环境变量
-
-不要把真实 API Key 写入前端代码或 Git 仓库。
-
-后端示例配置：
-
-```text
-backend/.env.example
-```
-
-DashScope / 千问运行时使用：
-
-```text
-DASHSCOPE_API_KEY
-```
-
-由 `start_ai_proxy.bat` 映射到：
+`DASHSCOPE_API_KEY` 映射到后端使用的模型配置：
 
 ```text
 STEM_LLM_API_KEY
@@ -146,13 +102,76 @@ STEM_EMBEDDING_API_KEY
 STEM_RERANKER_API_KEY
 ```
 
-## 文档
+### 4. 启动后端
+
+推荐从项目根目录启动：
+
+```powershell
+.\start_ai_proxy.bat
+```
+
+也可以手动启动：
+
+```powershell
+cd backend
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 3000
+```
+
+启动后访问：
 
 ```text
-backend/README.md
-backend/docs/RAG_PIPELINE.md
-backend/evals/README.md
-docs/
-GITHUB_UPLOAD_MANIFEST.md
-GITHUB_UPLOAD_FILELIST.txt
+http://127.0.0.1:3000
+http://127.0.0.1:3000/docs
+http://127.0.0.1:3000/api/v1/health
 ```
+
+### 5. 启动前端
+
+本项目是 uni-app 项目，推荐使用 HBuilderX
+
+
+## RAG 流程
+
+离线阶段：
+
+```text
+Markdown 实验文档
+  -> 加载
+  -> 清洗
+  -> Markdown 结构感知切块
+  -> metadata 增强
+  -> embedding
+  -> 向量索引
+  -> BM25 稀疏索引
+  -> 持久化
+```
+
+在线阶段：
+
+```text
+用户问题
+  -> 查询理解 / 查询路由
+  -> metadata filter
+  -> 向量检索
+  -> BM25 检索
+  -> RRF 融合
+  -> reranker
+  -> prompt template
+  -> LLM 生成回答
+  -> 返回答案和 sources
+```
+
+## RAG 评估
+
+项目支持三类评估：
+
+```text
+1. 自定义 eval cases：用于固定问题、期望命中内容、期望回答要点。
+2. bad case 记录：用于沉淀检索失败、回答幻觉、上下文不相关等问题。
+3. Ragas 格式导出：用于评估 faithfulness、context precision、response relevancy。
+```
+
+## License
+
+本项目归作者本人所有，仅允许用于个人学习、课程作业、技术交流和非商业研究参考。未经作者书面许可，不得将本项目或其任何部分用于商业用途，包括但不限于商业产品、商业培训、付费课程、外包交付、竞品开发、二次售卖或以盈利为目的的部署服务。
+
