@@ -1,43 +1,58 @@
 # STEM_Agent
 
-STEM_Agent 是一个面向小学 STEM 实验课程的 AI 辅助学习平台。项目围绕“科学探究 + 工程实践 + AI 助教”构建学习闭环，支持实验流程引导、虚拟操作、数据记录、学习总结、RAG 知识库问答和流式 AI 对话。
+STEM_Agent 是一个面向小学 STEM 实验课程的 AI 辅助学习平台。项目围绕“科学探究 + 工程实践 + AI 助教”构建学习闭环，支持实验流程引导、虚拟操作、数据记录、成长记录、RAG 知识库问答和流式 AI 对话。
+
 
 ## Demo 展示
 
 ### 首页与课程入口
 
+首页提供 STEM 学习入口、实验课程导航和 AI 助手入口，便于学生从课程场景进入具体实验任务。
+
 <img src="assets/readme/home.png" alt="首页与课程入口" width="800">
 
 ### 科学实验流程
+
+科学实验页面围绕探究式学习组织内容，包括实验背景、材料准备、步骤引导、虚拟操作和总结环节。
 
 <img src="assets/readme/science-flow.png" alt="科学实验流程" width="800">
 
 ### 工程实验流程
 
+工程实验页面强调任务驱动和制作流程，支持学生按照工程实践路径完成设计、制作、测试和优化。
+
 <img src="assets/readme/engineering-flow.png" alt="工程实验流程" width="800">
 
-### AIChat 流式回答
+### 数据记录
 
-<img src="assets/readme/aichat-stream.gif" alt="AIChat 流式回答" width="800">
+数据记录页面用于沉淀实验过程中的观察结果、实验数据和学习记录，为后续总结与报告生成提供依据。
 
-### RAG 问答
+<img src="assets/readme/data.png" alt="数据记录页面" width="800">
+
+### 成长记录
+
+成长记录页面用于展示学生学习过程、实验完成情况和阶段性成果，帮助形成持续学习反馈。
+
+<img src="assets/readme/growth.png" alt="成长记录页面" width="800">
+
+### RAG 问答效果
+
+AIChat 结合当前实验上下文和后端知识库进行回答。后端通过 Hybrid RAG 检索相关实验流程、材料、安全注意事项和原理说明，再交给大模型生成更贴合实验场景的回答。
 
 <img src="assets/readme/rag-answer.png" alt="RAG 问答效果" width="800">
-
 
 ## 核心功能
 
 - 实验课程页面：支持科学探究和工程实践两类 STEM 实验。
 - 实验流程引导：覆盖实验介绍、材料准备、步骤操作、数据记录、总结报告等环节。
 - AIChat 助手：前端浮窗式 AI 对话组件，支持普通回答和 SSE 流式回答。
-- Hybrid RAG：Markdown loader、结构化切块、metadata 增强、向量检索、BM25 检索、RRF 融合、reranker。
-- 大模型接入：预留 DashScope / Qwen 等 API 接入，也可接入本地大模型。
+- Hybrid RAG：支持结构化切块、metadata 增强、向量检索、BM25 检索、RRF 融合和 reranker。
 - RAG 评估：支持自定义 eval cases、bad case 记录和 Ragas 格式数据导出。
 
 
 ## 技术栈
 
-Vue, JavaScript, FastAPI, RAG , Server-Sent Events
+uni-app, Vue, JavaScript, FastAPI, RAG , Server-Sent Events
 
 ## 目录结构
 
@@ -49,6 +64,7 @@ STEM_Agent/
   components/                     实验流程组件
   config/                         实验配置、素材路径、流程配置
   utils/                          前端 AI 服务、状态管理、工具函数
+  assets/readme/                  README 展示图片
   static/                         静态资源目录
   backend/                        FastAPI + RAG 后端
     app/                          后端应用代码
@@ -80,7 +96,7 @@ cd backend
 pip install -r requirements.txt
 ```
 
-如果需要 FAISS：
+FAISS：
 
 ```powershell
 conda install -c conda-forge faiss-cpu
@@ -127,8 +143,12 @@ http://127.0.0.1:3000/api/v1/health
 
 ### 5. 启动前端
 
-本项目是 uni-app 项目，推荐使用 HBuilderX
+本项目是 uni-app 项目 , 前端默认请求：
 
+```text
+POST http://127.0.0.1:3000/api/ai/chat
+POST http://127.0.0.1:3000/api/ai/chat/stream
+```
 
 ## RAG 流程
 
@@ -168,10 +188,16 @@ Markdown 实验文档
 ```text
 1. 自定义 eval cases：用于固定问题、期望命中内容、期望回答要点。
 2. bad case 记录：用于沉淀检索失败、回答幻觉、上下文不相关等问题。
-3. Ragas 格式导出：用于评估 faithfulness、context precision、response relevancy。
+3. Ragas 格式导出：用于后续评估 faithfulness、context precision、response relevancy。
+```
+
+运行示例：
+
+```powershell
+cd backend
+python evals\run_rag_eval.py
 ```
 
 ## License
 
 本项目归作者本人所有，仅允许用于个人学习、课程作业、技术交流和非商业研究参考。未经作者书面许可，不得将本项目或其任何部分用于商业用途，包括但不限于商业产品、商业培训、付费课程、外包交付、竞品开发、二次售卖或以盈利为目的的部署服务。
-
