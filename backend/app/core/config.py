@@ -36,8 +36,17 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw.lower() in {"1", "true", "yes", "on"}
 
 
+def _env_list(name: str, default: tuple[str, ...]) -> list[str]:
+    raw = _env(name)
+    if not raw:
+        return list(default)
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
 @dataclass(frozen=True)
 class Settings:
+    cors_origins: list[str]
+
     backend_dir: Path
     knowledge_base_dir: Path
     index_dir: Path
@@ -87,6 +96,17 @@ def get_settings() -> Settings:
     knowledge_base_dir = backend_dir / "knowledge_base"
     index_dir = knowledge_base_dir / "index"
     return Settings(
+        cors_origins=_env_list(
+            "STEM_CORS_ORIGINS",
+            (
+                "http://127.0.0.1:5173",
+                "http://localhost:5173",
+                "http://127.0.0.1:8080",
+                "http://localhost:8080",
+                "http://127.0.0.1:3000",
+                "http://localhost:3000",
+            ),
+        ),
         backend_dir=backend_dir,
         knowledge_base_dir=knowledge_base_dir,
         index_dir=index_dir,

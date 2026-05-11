@@ -4,6 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.chat import router as chat_router
 from app.api.health import router as health_router
 from app.api.rag import router as rag_router
+from app.core.config import get_settings
+
+
+settings = get_settings()
 
 
 app = FastAPI(
@@ -14,14 +18,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5173",
-        "http://localhost:5173",
-        "http://127.0.0.1:8080",
-        "http://localhost:8080",
-        "http://127.0.0.1:3000",
-        "http://localhost:3000",
-    ],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

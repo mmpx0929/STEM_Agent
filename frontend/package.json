@@ -1,0 +1,24 @@
+{
+  "name": "stem-agent-uniapp-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:h5": "uni -p h5",
+    "build:h5": "uni build -p h5"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5000820260430001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5000820260430001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5000820260430001",
+    "@dcloudio/uni-ui": "latest",
+    "vue": "3.5.33",
+    "vue-i18n": "9.14.5"
+  },
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5000820260430001",
+    "sass": "1.94.2",
+    "vite": "5.2.8",
+    "webpack": "5.101.3"
+  }
+}

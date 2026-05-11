@@ -53,6 +53,8 @@ def make_chat_response(payload: ChatRequest) -> ChatResponse:
             context_step_id=payload.current_step,
             scene=payload.scene,
             page_context=payload.pageContext,
+            history=payload.history,
+            messages=payload.messages,
             top_k=3,
         )
         sources = rag_result.get("sources") or []
@@ -80,7 +82,7 @@ def make_chat_response(payload: ChatRequest) -> ChatResponse:
 
 @router.post("/api/ai/chat", response_model=ChatResponse)
 def compatible_chat(payload: ChatRequest):
-    """Compatible endpoint for the current frontend PROXY_CONFIG.chatPath."""
+    """Compatibility endpoint for older frontend PROXY_CONFIG.chatPath."""
     return make_chat_response(payload)
 
 
@@ -102,3 +104,9 @@ def compatible_chat_stream(payload: ChatRequest):
 def standard_chat(payload: ChatRequest):
     """Standard chat endpoint for later RAG and Agent integration."""
     return make_chat_response(payload)
+
+
+@router.post("/api/v1/chat/stream")
+def standard_chat_stream(payload: ChatRequest):
+    """Standard SSE chat endpoint for separated frontend clients."""
+    return compatible_chat_stream(payload)

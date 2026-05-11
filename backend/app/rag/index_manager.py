@@ -16,8 +16,17 @@ def chunk_from_dict(data: dict[str, Any]) -> Chunk:
         experiment_id=str(data["experiment_id"]),
         experiment_type=str(data.get("experiment_type") or ""),
         experiment_title=str(data.get("experiment_title") or ""),
+        canonical_title=str(data.get("canonical_title") or data.get("experiment_title") or ""),
+        display_title=str(data.get("display_title") or ""),
+        aliases=tuple(data.get("aliases") or []),
         doc_type=str(data["doc_type"]),
         step_id=data.get("step_id"),
+        step_title=data.get("step_title"),
+        section_type=str(data.get("section_type") or "other"),
+        quality_score=float(data.get("quality_score") or 0.65),
+        source_status=str(data.get("source_status") or "unknown"),
+        token_count=int(data.get("token_count") or len(str(data.get("text") or ""))),
+        updated_at=str(data.get("updated_at") or ""),
         title=str(data.get("title") or ""),
         heading_path=list(data.get("heading_path") or []),
         source=str(data["source"]),
@@ -73,6 +82,14 @@ def rebuild_index() -> dict[str, Any]:
     build_vector_index(settings.vectors_path, chunks)
     build_sparse_index(settings.sparse_index_path, chunks)
     write_metadata(chunks)
+    try:
+        from app.rag.experiment_registry import clear_experiment_registry_cache
+        from app.rag.retriever_cache import invalidate_retriever_cache
+
+        clear_experiment_registry_cache()
+        invalidate_retriever_cache()
+    except Exception:
+        pass
 
     doc_type_counts: dict[str, int] = {}
     experiment_counts: dict[str, int] = {}

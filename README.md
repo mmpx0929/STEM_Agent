@@ -46,36 +46,47 @@ AIChat 结合当前实验上下文和后端知识库进行回答。后端通过 
 - 实验课程页面：支持科学探究和工程实践两类 STEM 实验。
 - 实验流程引导：覆盖实验介绍、材料准备、步骤操作、数据记录、总结报告等环节。
 - AIChat 助手：前端浮窗式 AI 对话组件，支持普通回答和 SSE 流式回答。
-- Hybrid RAG：支持结构化切块、metadata 增强、向量检索、BM25 检索、RRF 融合和 reranker。
+- Hybrid RAG：支持查询改写、实验路由、结构化切块、metadata 增强、向量检索、BM25 检索、RRF 融合和 reranker。
 - RAG 评估：支持自定义 eval cases、bad case 记录和 Ragas 格式数据导出。
-
 
 ## 技术栈
 
-uni-app, Vue, JavaScript, FastAPI, RAG , Server-Sent Events
+- 前端：uni-app、Vue 3、Vite、JavaScript、Sass
+- 后端：FastAPI、Uvicorn、Pydantic
+- RAG：FAISS / 本地向量兜底、BM25、RRF 融合、reranker、Markdown 知识库
 
 ## 目录结构
 
 ```text
 STEM_Agent/
-  App.vue                         uni-app 根组件
-  main.js                         前端入口
-  pages/                          页面目录
-  components/                     实验流程组件
-  config/                         实验配置、素材路径、流程配置
-  utils/                          前端 AI 服务、状态管理、工具函数
-  assets/readme/                  README 展示图片
-  static/                         静态资源目录
+  README.md                       项目说明文档
+  start_backend.bat               后端启动脚本
+  assets/readme/                  README 图片
+  frontend/                       前端
+    package.json                  前端依赖与 npm scripts
+    package-lock.json             前端依赖锁定文件
+    vite.config.cjs               uni-app Vite 配置
+    index.html                    H5 入口模板
+    src/                          前端源码
+      App.vue                     
+      main.js                     
+      pages.json                  
+      manifest.json               
+      pages/                      页面目录
+      components/                 实验流程组件
+      config/                     实验配置、素材路径、流程配置
+      utils/                      API 调用、AI 服务、状态管理、工具函数                   
+      static/                     教学资源
   backend/                        FastAPI + RAG 后端
-    app/                          后端应用代码
-      api/                        API 路由
-      core/                       配置
-      rag/                        RAG 模块
-      schemas/                    请求和响应模型
-      services/                   业务服务
-    evals/                        RAG 评估用例和评估脚本
-    knowledge_base/               知识库目录
+    app/                          后端
+      api/                        
+      core/                       
+      rag/                        RAG 
+      schemas/                    
+      services/                   
+    evals/                        RAG 评估用例
     scripts/                      索引构建等脚本
+    requirements.txt              后端 Python 依赖
 ```
 
 ## 快速开始
@@ -123,7 +134,7 @@ STEM_RERANKER_API_KEY
 推荐从项目根目录启动：
 
 ```powershell
-.\start_ai_proxy.bat
+.\start_backend.bat
 ```
 
 也可以手动启动：
@@ -143,11 +154,25 @@ http://127.0.0.1:3000/api/v1/health
 
 ### 5. 启动前端
 
-本项目是 uni-app 项目 , 前端默认请求：
+首次安装依赖：
 
-```text
-POST http://127.0.0.1:3000/api/ai/chat
-POST http://127.0.0.1:3000/api/ai/chat/stream
+```powershell
+cd frontend
+npm install
+```
+
+启动：
+
+```powershell
+cd frontend
+npm run dev:h5
+```
+
+构建H5：
+
+```powershell
+cd frontend
+npm run build:h5
 ```
 
 ## RAG 流程
@@ -170,7 +195,8 @@ Markdown 实验文档
 
 ```text
 用户问题
-  -> 查询理解 / 查询路由
+  -> 查询改写 / 查询路由
+  -> 实验与步骤上下文识别
   -> metadata filter
   -> 向量检索
   -> BM25 检索

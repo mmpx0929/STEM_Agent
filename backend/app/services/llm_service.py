@@ -4,6 +4,7 @@ import json
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from collections.abc import Iterator
 
 from app.core.config import get_settings
 from app.rag.prompt_templates import build_system_prompt
@@ -51,6 +52,7 @@ def build_local_answer(question: str, retrieved: list[RetrievedChunk], *, query_
     }.get(query_type or "", "知识库")
     lines = [
         f"我根据知识库按“{type_label}”场景整理成下面的回答：",
+        f"针对问题：{question}",
         "",
     ]
 
@@ -149,3 +151,81 @@ def synthesize_rag_answer(
         return LLMResult(answer=content, model="local-synthesis-v1", provider="local", used_llm=False)
 
     return LLMResult(answer=content, model=model, provider=provider, used_llm=True)
+
+
+def stream_rag_answer(
+    question: str,
+    retrieved: list[RetrievedChunk],
+    *,
+    query_type: str | None = None,
+) -> Iterator[tuple[str, LLMResult | None]]:
+    settings = get_settings()
+    api_key = settings.llm_api_key
+    base_url = settings.llm_base_url
+    model = settings.llm_model
+    provider = settings.llm_provider
+
+    if not api_key or not base_url:
+        answer = build_local_answer(question, retrieved, query_type=query_type)
+        info = LLMResult(answer=answer, model="local-synthesis-v1", provider="local", used_llm=False)
+        for index in range(0, len(answer), 8):
+            yield answer[index : index + 8], None
+        yield "", info
+        return
+
+    context = build_context(retrieved)
+    messages = [
+        {"role": "system", "content": build_system_prompt(query_type)},
+        {"role": "user", "content": f"用户问题：{question}\n\n知识库上下文：\n{context}"},
+    ]
+    payload = json.dumps(
+        {
+            "model": model,
+            "messages": messages,
+            "temperature": settings.llm_temperature,
+            "max_tokens": settings.llm_max_tokens,
+            "stream": True,
+        },
+        ensure_ascii=False,
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        f"{base_url.rstrip('/')}/chat/completions",
+        data=payload,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+
+    collected: list[str] = []
+    try:
+        with urllib.request.urlopen(request, timeout=settings.llm_timeout) as response:
+            for raw_line in response:
+                line = raw_line.decode("utf-8", errors="ignore").strip()
+                if not line or not line.startswith("data:"):
+                    continue
+                data = line.removeprefix("data:").strip()
+                if data == "[DONE]":
+                    break
+                try:
+                    body = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+                token = (
+                    body.get("choices", [{}])[0]
+                    .get("delta", {})
+                    .get("content", "")
+                )
+                if token:
+                    collected.append(token)
+                    yield token, None
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+        if not settings.llm_allow_local_fallback:
+            raise
+        answer = build_local_answer(question, retrieved, query_type=query_type)
+        info = LLMResult(answer=answer, model="local-synthesis-v1", provider="local", used_llm=False)
+        for index in range(0, len(answer), 8):
+            yield answer[index : index + 8], None
+        yield "", info
+        return
+
+    final_answer = "".join(collected).strip()
+    yield "", LLMResult(answer=final_answer, model=model, provider=provider, used_llm=True)

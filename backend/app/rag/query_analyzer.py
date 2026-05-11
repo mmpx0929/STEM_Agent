@@ -2,38 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from app.rag.experiment_registry import resolve_experiment
 from app.rag.retriever import infer_doc_type, infer_step_id, normalize_text
-
-
-EXPERIMENT_ALIASES = {
-    "science-01": [
-        "science-01",
-        "s01",
-        "s-01",
-        "科学实验1",
-        "科学实验一",
-        "科学探究1",
-        "科学探究一",
-        "实验1",
-        "实验一",
-        "旋转飞椅",
-        "洗衣机甩干",
-        "洗衣机为什么能把衣服甩干",
-    ],
-    "engineering-01": [
-        "engineering-01",
-        "e01",
-        "e-01",
-        "工程实验1",
-        "工程实验一",
-        "工程实践1",
-        "工程实践一",
-        "手动离心甩干机",
-        "手动甩干机",
-        "袜子脱水",
-        "袜子甩干",
-    ],
-}
 
 VIRTUAL_OPERATION_KEYWORDS = ["虚拟操作", "虚拟实验", "虚拟搭建", "虚拟仿真", "在线操作", "拖拽材料"]
 DATA_ANALYSIS_KEYWORDS = ["数据记录", "记录数据", "数据分析", "分析数据", "现象记录"]
@@ -59,14 +29,8 @@ class QueryContext:
 
 
 def resolve_experiment_id(question: str, experiment_id: str | None) -> str | None:
-    if experiment_id:
-        return experiment_id
-
-    normalized_question = normalize_text(question)
-    for target_id, aliases in EXPERIMENT_ALIASES.items():
-        if any(normalize_text(alias) in normalized_question for alias in aliases):
-            return target_id
-    return None
+    info = resolve_experiment(question, frontend_experiment_id=experiment_id)
+    return info.experiment_id if info else None
 
 
 def resolve_step_id(question: str, experiment_id: str | None, step_id: str | None) -> str | None:
@@ -148,6 +112,8 @@ def analyze_query(
     inferred_doc_type = infer_doc_type(question)
     resolved_step_id = resolve_step_id(question, resolved_experiment_id, step_id)
     resolved_doc_type = doc_type or inferred_doc_type
+    if doc_type and not step_id:
+        resolved_step_id = None
     has_report_intent = any(normalize_text(keyword) in normalize_text(question) for keyword in REPORT_KEYWORDS)
     if has_report_intent and not step_id and not infer_step_id(question):
         resolved_step_id = None

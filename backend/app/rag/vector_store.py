@@ -16,9 +16,13 @@ def chunk_embedding_text(chunk: Chunk) -> str:
         for value in [
             chunk.experiment_id,
             chunk.experiment_type,
-            chunk.experiment_title,
+            chunk.canonical_title or chunk.experiment_title,
+            chunk.display_title,
+            " ".join(chunk.aliases),
             chunk.doc_type,
             chunk.step_id or "",
+            chunk.step_title or "",
+            chunk.section_type,
             chunk.title,
         ]
         if value

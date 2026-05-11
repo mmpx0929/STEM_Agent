@@ -27,5 +27,7 @@ def rag_query(payload: RAGQueryRequest):
         context_step_id=payload.context_step_id,
         scene=payload.scene,
         page_context=payload.page_context,
+        history=getattr(payload, "history", None),
+        messages=getattr(payload, "messages", None),
         top_k=payload.top_k,
     )

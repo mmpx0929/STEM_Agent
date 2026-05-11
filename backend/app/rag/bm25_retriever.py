@@ -15,9 +15,13 @@ def sparse_text(chunk: Chunk) -> str:
         value
         for value in [
             chunk.experiment_id,
-            chunk.experiment_title,
+            chunk.canonical_title or chunk.experiment_title,
+            chunk.display_title,
+            " ".join(chunk.aliases),
             chunk.doc_type,
             chunk.step_id or "",
+            chunk.step_title or "",
+            chunk.section_type,
             chunk.title,
             chunk.text,
         ]

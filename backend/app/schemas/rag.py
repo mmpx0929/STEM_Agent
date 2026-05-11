@@ -13,6 +13,8 @@ class RAGQueryRequest(BaseModel):
     context_step_id: str | None = None
     scene: str | None = None
     page_context: str | None = None
+    history: list[dict[str, Any]] = Field(default_factory=list)
+    messages: list[dict[str, Any]] = Field(default_factory=list)
     top_k: int = Field(default=5, ge=1, le=20)
 
 
@@ -20,8 +22,13 @@ class RAGSource(BaseModel):
     chunk_id: str
     experiment_id: str
     experiment_type: str
+    experiment_title: str | None = None
     doc_type: str
     step_id: str | None = None
+    step_title: str | None = None
+    section_type: str | None = None
+    quality_score: float | None = None
+    source_status: str | None = None
     title: str
     source: str
     score: float

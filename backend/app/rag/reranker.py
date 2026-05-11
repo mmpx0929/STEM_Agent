@@ -71,6 +71,7 @@ def rerank_chunks(
             score += 0.12
         if context_step_id and not context_dependent and chunk.step_id == context_step_id:
             score += 0.03
+        score += max(0.0, min(chunk.quality_score, 1.0)) * 0.08
 
         reranked.append(RetrievedChunk(chunk=chunk, score=round(score, 6)))
 
